@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  dev_db:
+    image: postgres:12.2-alpine
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: admin
+      POSTGRES_DB: admin
+    ports:
+      - 5432:5432
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql

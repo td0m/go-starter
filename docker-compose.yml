@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    container_name: app
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    environment:
+      profile: prod
+      db_pass: CHANGE_ME
+  db:
+    image: postgres:12.2-alpine
+    environment:
+      POSTGRES_PASSWORD: CHANGE_ME
+      POSTGRES_USER: admin
+      POSTGRES_DB: admin
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
