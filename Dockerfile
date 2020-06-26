@@ -1,16 +1,15 @@
-FROM node:12.16.1-alpine3.11 AS JS_BUILD
-COPY web /web
-WORKDIR web
-RUN npm install && npm run build
+FROM golang:1.14.2-alpine AS go_builder
 
-FROM golang:1.13.9-alpine AS GO_BUILD
-COPY server /server
 WORKDIR /server
-RUN go build -o /go/bin/server
+COPY server /server
 
-FROM alpine:3.11.3
-COPY --from=JS_BUILD /web/build* ./web/
-COPY --from=GO_BUILD /go/bin/server ./
-CMD ./server
+# build
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on
+RUN go build /server/cmd/server/main.go
 
-
+FROM scratch 
+# dont copy directly to / because static file handling would also serve linux dirs
+COPY --from=go_builder /server/main /app/main
+ENV PORT=80 PRODUCTION=
+EXPOSE 80
+ENTRYPOINT ["/app/main"]
