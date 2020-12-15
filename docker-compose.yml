@@ -11,22 +11,16 @@ services:
       - MONGO_HOST=go_starter_mongo
     depends_on:
       - postgres
-    ports:
-      - 8080:80
   postgres:
     container_name: go_starter_postgres
     image: postgres:13-alpine
     env_file:
       - .env
-    ports:
-      - 5432:5432
   mongo:
     container_name: go_starter_mongo
     image: mongo:latest
     env_file:
       - .env
-    ports:
-      - 27017:27017
     volumes:
       - mongo_data:/data/db
 volumes:
