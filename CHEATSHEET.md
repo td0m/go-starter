@@ -7,7 +7,7 @@
 | `docker-compose ps`                       | List containers, their state, exposed ports, etc.              |
 | `docker-compose up`                       | Start all containers in attached mode.                         |
 | `docker-compose up C1 C2 ...`             | Start containers in attached mode.                             |
-| `docker-compose up -d`                | Start containers in detached mode.                             |
+| `docker-compose up -d`                    | Start containers in detached mode.                             |
 | `docker-compose logs`                     | View logs of all detached containers.                          |
 | `docker-compose logs C1 C2 ...`           | View logs of only specified containers.                        |
 | `docker-compose logs --tail=1000`         | View last 1000 lines of logs.                                  |
@@ -20,7 +20,6 @@
 ### Override
 
 `docker-compose.override.yml` will automatically merge with the default compose file unless the `-f` flag is used.
-:w
 
 This can be useful for development-only environments, for example to attach volumes or bind to host's ports.
 
