@@ -14,12 +14,15 @@ type HTTP struct {
 }
 
 // NewHTTP attaches router http endpoints
-func NewHTTP(r *mux.Router, svc *Service) {
+func NewHTTP(r *mux.Router, svc *Service, auth mux.MiddlewareFunc) {
 	h := HTTP{svc}
 
+	authR := r.NewRoute().Subrouter()
+	authR.Use(auth)
+
 	r.HandleFunc("/{id}", h.get).Methods("GET")
-	r.HandleFunc("", h.create).Methods("POST")
-	r.HandleFunc("/{id}", h.put).Methods("PUT")
+	authR.HandleFunc("", h.create).Methods("POST")
+	authR.HandleFunc("/{id}", h.put).Methods("PUT")
 }
 
 func (h *HTTP) get(w http.ResponseWriter, r *http.Request) {
