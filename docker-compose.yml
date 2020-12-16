@@ -16,12 +16,5 @@ services:
     image: postgres:13-alpine
     env_file:
       - .env
-  mongo:
-    container_name: go_starter_mongo
-    image: mongo:latest
-    env_file:
-      - .env
-    volumes:
-      - mongo_data:/data/db
 volumes:
   mongo_data:

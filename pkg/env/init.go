@@ -12,11 +12,6 @@ var (
 
 	// PostgresURI specifies the postgres connection string
 	PostgresURI string
-
-	// MongoDBName specifies the name of the mongo database to use
-	MongoDBName string
-	// MongoURI specifies the mongo connection string
-	MongoURI string
 )
 
 func init() {
@@ -30,14 +25,5 @@ func init() {
 		mustGet("POSTGRES_USER"),
 		mustGet("POSTGRES_PASSWORD"),
 		mustGet("POSTGRES_DB"),
-	)
-
-	MongoDBName = mustGet("MONGO_INITDB_DATABASE")
-	MongoURI = fmt.Sprintf(
-		"mongodb://%s:%s@%s/%s?authSource=admin",
-		mustGet("MONGO_INITDB_ROOT_USERNAME"),
-		mustGet("MONGO_INITDB_ROOT_PASSWORD"),
-		get("MONGO_HOST", "localhost"),
-		MongoDBName,
 	)
 }
