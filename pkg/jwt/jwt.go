@@ -10,6 +10,12 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+type key int
+
+const (
+	claimKey key = iota
+)
+
 // Claims holds all custom claims
 type Claims struct {
 	jwt.StandardClaims
@@ -67,7 +73,7 @@ func (j JWT) WithClaims(h http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), "claims", claims)
+		ctx := context.WithValue(r.Context(), claimKey, claims)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -92,5 +98,5 @@ func (j JWT) getClaims(tokenString string) (*Claims, error) {
 
 // FromContext constructs claims from context
 func FromContext(ctx context.Context) *Claims {
-	return (ctx.Value("claims")).(*Claims)
+	return (ctx.Value(claimKey)).(*Claims)
 }
