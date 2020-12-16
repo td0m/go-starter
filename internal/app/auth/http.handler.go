@@ -15,10 +15,10 @@ type HTTP struct {
 }
 
 // NewHTTP attaches router http endpoints
-func NewHTTP(r *mux.Router, svc *Service, withJWT mux.MiddlewareFunc) {
+func NewHTTP(r *mux.Router, svc *Service, auth mux.MiddlewareFunc) {
 	h := HTTP{svc}
 	withAuth := r.NewRoute().Subrouter()
-	withAuth.Use(withJWT)
+	withAuth.Use(auth)
 
 	r.HandleFunc("/github", h.authWithGithub).Methods("GET")
 	r.HandleFunc("/github/callback", h.authWithGithubCallback).Methods("GET")

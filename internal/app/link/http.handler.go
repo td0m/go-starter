@@ -17,12 +17,12 @@ type HTTP struct {
 func NewHTTP(r *mux.Router, svc *Service, auth mux.MiddlewareFunc) {
 	h := HTTP{svc}
 
-	authR := r.NewRoute().Subrouter()
-	authR.Use(auth)
+	withAuth := r.NewRoute().Subrouter()
+	withAuth.Use(auth)
 
 	r.HandleFunc("/{id}", h.get).Methods("GET")
-	authR.HandleFunc("", h.create).Methods("POST")
-	authR.HandleFunc("/{id}", h.put).Methods("PUT")
+	withAuth.HandleFunc("", h.create).Methods("POST")
+	withAuth.HandleFunc("/{id}", h.put).Methods("PUT")
 }
 
 func (h *HTTP) get(w http.ResponseWriter, r *http.Request) {
