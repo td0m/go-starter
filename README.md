@@ -38,3 +38,14 @@ Docker Compose is well suited for production, as long as:
  - you don't need vertical scaling
 
 If you need any of the above, you should probably look into using Kubernetes.
+
+## Tips for using docker-compose in production
+
+ - CI/CD to build and push docker images (not locally)
+ - pull images in production rather than building them from scratch - saves downtime
+ - don't put production databases in docker containers - run dedicated db servers
+
+TODO: Article on using docker-compose in production
+ - addresses the "dont use docker compose in production"
+
+TODO: link the article in here

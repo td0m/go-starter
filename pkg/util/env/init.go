@@ -26,7 +26,7 @@ func init() {
 
 	PostgresURI = fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s sslmode=disable",
-		mustGet("POSTGRES_HOST"),
+		get("POSTGRES_HOST", "localhost"),
 		mustGet("POSTGRES_USER"),
 		mustGet("POSTGRES_PASSWORD"),
 		mustGet("POSTGRES_DB"),
@@ -37,7 +37,7 @@ func init() {
 		"mongodb://%s:%s@%s/%s?authSource=admin",
 		mustGet("MONGO_INITDB_ROOT_USERNAME"),
 		mustGet("MONGO_INITDB_ROOT_PASSWORD"),
-		mustGet("MONGO_HOST"),
+		get("MONGO_HOST", "localhost"),
 		MongoDBName,
 	)
 }
