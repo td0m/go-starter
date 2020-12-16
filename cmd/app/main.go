@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,9 +10,9 @@ import (
 	"path"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/td0m/go-starter/internal/app"
+	"github.com/td0m/go-starter/internal/db"
 	"github.com/td0m/go-starter/pkg/util/env"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -20,18 +21,20 @@ import (
 
 func main() {
 	// Postgres
-	postgres, err := initPostgres(env.PostgresURI)
+	postgresDB, err := initPostgres(env.PostgresURI)
 	check(err)
-	check(migrate(postgres, "./internal/migrations"))
+	check(migrate(postgresDB, "./sql/schema"))
 	fmt.Println("Postgres connected.")
+
+	db := db.New(postgresDB)
 
 	// Mongo
 	mongo, err := initMongo(env.MongoDBName, env.MongoURI)
 	check(err)
-	fmt.Println("Mongo connected.")
+	fmt.Println("Mongo connected.", mongo)
 
 	// Routing
-	app := app.New(postgres, mongo)
+	app := app.New(db)
 	check(http.ListenAndServe(":"+env.Port, app))
 }
 
@@ -41,9 +44,13 @@ func check(err error) {
 	}
 }
 
-func initPostgres(uri string) (*sqlx.DB, error) {
-	pg, err := sqlx.Connect("postgres", uri)
-	return pg, err
+func initPostgres(uri string) (db *sql.DB, err error) {
+	db, err = sql.Open("postgres", uri)
+	if err != nil {
+		return
+	}
+	err = db.Ping()
+	return
 }
 
 func initMongo(dbname, uri string) (db *mongo.Database, err error) {
@@ -69,7 +76,7 @@ func initMongo(dbname, uri string) (db *mongo.Database, err error) {
 	return client.Database(dbname), err
 }
 
-func migrate(db *sqlx.DB, dir string) (err error) {
+func migrate(db *sql.DB, dir string) (err error) {
 	migrations, err := getMigrations(dir)
 	if err != nil {
 		return
@@ -84,13 +91,13 @@ func migrate(db *sqlx.DB, dir string) (err error) {
 }
 
 // apply applies a migration in a given file to the database
-func apply(db *sqlx.DB, path string) error {
+func apply(db *sql.DB, path string) error {
 	migration, err := ioutil.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("failed to read file at \"%s\"", path)
 	}
 
-	if _, err := db.DB.Exec(string(migration)); err != nil {
+	if _, err := db.Exec(string(migration)); err != nil {
 		return fmt.Errorf("error applying migration \"%s\": %s", path, err)
 	}
 	return nil

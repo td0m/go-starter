@@ -20,6 +20,7 @@ RUN go build -o main ./cmd/app/main.go
 # move binary to a minimal image
 FROM scratch
 COPY --from=builder /app/main /app
+COPY sql/schema /sql/schema
 
 # run the binary
 ENV PORT=80
