@@ -1,9 +1,12 @@
 package jwt
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 
-	jwtmiddleware "github.com/auth0/go-jwt-middleware"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -35,12 +38,55 @@ func (j JWT) Generate(id string) (string, error) {
 	return token.SignedString([]byte(j.secret))
 }
 
-// Middleware creates the jwt middleware
-func (j JWT) Middleware() func(http.Handler) http.Handler {
-	return jwtmiddleware.New(jwtmiddleware.Options{
-		ValidationKeyGetter: func(t *jwt.Token) (interface{}, error) {
-			return []byte(j.secret), nil
-		},
-		SigningMethod: j.method,
-	}).Handler
+// WithClaims creates the jwt middleware that only accepts traffic that contains a valid jwt token
+// errors if invalid token
+// puts jwt credentials in context
+func (j JWT) WithClaims(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tokenStr := r.Header.Get("Authorization")
+		if len(tokenStr) > 0 {
+			if !strings.Contains(tokenStr, " ") {
+				http.Error(w, "no authorization header", http.StatusBadRequest)
+				return
+			}
+			parts := strings.Split(tokenStr, " ")
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				http.Error(w, "invalid authorization header. should be in form of: 'Bearer token'", http.StatusBadRequest)
+				return
+			}
+			tokenStr = parts[1]
+		} else {
+			tokenStr = r.URL.Query().Get("token")
+		}
+		claims, err := j.getClaims(tokenStr)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "claims", claims)
+		h.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (j JWT) getClaims(tokenString string) (*Claims, error) {
+	claims := Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(j.secret), nil
+	})
+	if err != nil {
+		return nil, errors.New("failed parsing token with claims")
+	}
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+	return &claims, nil
+
+}
+
+// FromContext constructs claims from context
+func FromContext(ctx context.Context) *Claims {
+	return (ctx.Value("claims")).(*Claims)
 }

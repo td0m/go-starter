@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/td0m/go-starter/pkg/errors"
+	"github.com/td0m/go-starter/pkg/jwt"
 )
 
 // HTTP handler struct
@@ -21,11 +22,12 @@ func NewHTTP(r *mux.Router, svc *Service, withJWT mux.MiddlewareFunc) {
 
 	r.HandleFunc("/github", h.authWithGithub).Methods("GET")
 	r.HandleFunc("/github/callback", h.authWithGithubCallback).Methods("GET")
-	withAuth.HandleFunc("/me", h.me).Methods("POST")
+	withAuth.HandleFunc("/me", h.me).Methods("GET")
 }
 
 func (h *HTTP) me(w http.ResponseWriter, r *http.Request) {
-	errors.Write(w, errors.New(http.StatusNotFound, "err"))
+	user := jwt.FromContext(r.Context())
+	json.NewEncoder(w).Encode(user)
 }
 
 func (h *HTTP) authWithGithub(w http.ResponseWriter, r *http.Request) {

@@ -20,7 +20,7 @@ func New(db db.Querier, ghauth *oauth2.Config, jwtService *jwt.JWT) *mux.Router 
 	r.Use(middlewares...)
 	// api := r.PathPrefix("/api").Subrouter()
 
-	auth.NewHTTP(r.PathPrefix("/auth").Subrouter(), auth.New(ghauth, jwtService.Generate), jwtService.Middleware())
+	auth.NewHTTP(r.PathPrefix("/auth").Subrouter(), auth.New(ghauth, jwtService.Generate), jwtService.WithClaims)
 	link.NewHTTP(r.PathPrefix("/s").Subrouter(), link.New(db))
 
 	return r
