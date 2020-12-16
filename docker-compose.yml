@@ -8,7 +8,6 @@ services:
       - .env
     environment:
       - POSTGRES_HOST=go_starter_postgres
-      - MONGO_HOST=go_starter_mongo
     depends_on:
       - postgres
   postgres:
@@ -16,5 +15,3 @@ services:
     image: postgres:13-alpine
     env_file:
       - .env
-volumes:
-  mongo_data:
