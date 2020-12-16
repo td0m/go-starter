@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/td0m/go-starter/internal/app"
@@ -37,15 +36,6 @@ func main() {
 		RedirectURL:  env.GithubRedirectURL,
 		Endpoint:     githubEndpoint,
 	}
-
-	go func() {
-		time.Sleep(time.Second)
-
-		fmt.Println(githubAuth.AuthCodeURL("state"))
-
-		//tk, err := githubAuth.Exchange(context.Background(), "code")
-		//fmt.Println(tk, err)
-	}()
 
 	// Routing
 	app := app.New(db, githubAuth, jwt.New(env.JWTSecret))

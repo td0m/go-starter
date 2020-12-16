@@ -46,21 +46,25 @@ func (j JWT) WithClaims(h http.Handler) http.Handler {
 		tokenStr := r.Header.Get("Authorization")
 		if len(tokenStr) > 0 {
 			if !strings.Contains(tokenStr, " ") {
-				http.Error(w, "no authorization header", http.StatusBadRequest)
+				http.Error(w, "no authorization header", http.StatusUnauthorized)
 				return
 			}
 			parts := strings.Split(tokenStr, " ")
 			if len(parts) != 2 || parts[0] != "Bearer" {
-				http.Error(w, "invalid authorization header. should be in form of: 'Bearer token'", http.StatusBadRequest)
+				http.Error(w, "invalid authorization header. should be in form of: 'Bearer token'", http.StatusUnauthorized)
 				return
 			}
 			tokenStr = parts[1]
 		} else {
 			tokenStr = r.URL.Query().Get("token")
 		}
+		if len(tokenStr) == 0 {
+			http.Error(w, "authorization token required", http.StatusUnauthorized)
+			return
+		}
 		claims, err := j.getClaims(tokenStr)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 		ctx := context.WithValue(r.Context(), "claims", claims)
