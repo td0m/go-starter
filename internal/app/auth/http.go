@@ -11,11 +11,11 @@ import (
 
 // HTTP handler struct
 type HTTP struct {
-	svc *Service
+	svc Service
 }
 
 // NewHTTP attaches router http endpoints
-func NewHTTP(r *mux.Router, svc *Service, auth mux.MiddlewareFunc) {
+func NewHTTP(r *mux.Router, svc Service, auth mux.MiddlewareFunc) {
 	h := HTTP{svc}
 	withAuth := r.NewRoute().Subrouter()
 	withAuth.Use(auth)
@@ -31,7 +31,7 @@ func (h *HTTP) me(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HTTP) authWithGithub(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, h.svc.GithubAuthURL("nostatexx", "http://localhost:8080/auth/github/callback"), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, h.svc.GithubAuthURL("nostatexx"), http.StatusTemporaryRedirect)
 }
 
 func (h *HTTP) authWithGithubCallback(w http.ResponseWriter, r *http.Request) {

@@ -5,33 +5,29 @@ import (
 	"net/http"
 
 	"github.com/td0m/go-starter/pkg/errors"
-	"golang.org/x/oauth2"
 )
 
 // Custom errors
 var ()
 
-// Service defines a service
-type Service struct {
-	githubAuth *oauth2.Config
+// Auth defines a service
+type Auth struct {
+	githubAuth OAuth
 	jwtGen     JWTGenerator
 }
 
 // New construcs a new sevice
-func New(gh *oauth2.Config, jwtGen JWTGenerator) *Service {
-	return &Service{gh, jwtGen}
+func New(gh OAuth, jwtGen JWTGenerator) *Auth {
+	return &Auth{gh, jwtGen}
 }
 
-// JWTGenerator generates a jwt
-type JWTGenerator func(string) (string, error)
-
 // GithubAuthURL generates a github oauth2 auth url
-func (s *Service) GithubAuthURL(state, redirectURL string) string {
+func (s *Auth) GithubAuthURL(state string) string {
 	return s.githubAuth.AuthCodeURL(state)
 }
 
 // GithubCodeToToken method
-func (s *Service) GithubCodeToToken(code string) (string, error) {
+func (s *Auth) GithubCodeToToken(code string) (string, error) {
 	oauthResp, err := s.githubAuth.Exchange(context.Background(), code)
 	if err != nil || !oauthResp.Valid() {
 		return "", errors.New(http.StatusUnauthorized, "authentication failed. provided auth code or server configuration is invalid.")

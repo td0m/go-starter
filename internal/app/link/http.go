@@ -10,11 +10,11 @@ import (
 
 // HTTP handler struct
 type HTTP struct {
-	svc *Service
+	svc Service
 }
 
 // NewHTTP attaches router http endpoints
-func NewHTTP(r *mux.Router, svc *Service, auth mux.MiddlewareFunc) {
+func NewHTTP(r *mux.Router, svc Service, auth mux.MiddlewareFunc) {
 	h := HTTP{svc}
 
 	withAuth := r.NewRoute().Subrouter()

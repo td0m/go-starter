@@ -14,18 +14,18 @@ var (
 	ErrAlreadyExists = errors.New(http.StatusConflict, "link already exists")
 )
 
-// Service defines a service
-type Service struct {
-	db db.Querier
+// Link defines a service
+type Link struct {
+	db DB
 }
 
 // New construcs a new sevice
-func New(db db.Querier) *Service {
-	return &Service{db}
+func New(db DB) *Link {
+	return &Link{db}
 }
 
 // Get method
-func (s Service) Get(id string) (*db.Link, error) {
+func (s Link) Get(id string) (*db.Link, error) {
 	link, err := s.db.GetLink(context.Background(), id)
 	if err != nil {
 		return &link, ErrNotFound
@@ -34,7 +34,7 @@ func (s Service) Get(id string) (*db.Link, error) {
 }
 
 // Create method
-func (s Service) Create(id, url string) (*db.Link, error) {
+func (s Link) Create(id, url string) (*db.Link, error) {
 	l, err := s.db.CreateLink(context.Background(), db.CreateLinkParams{
 		ID:  id,
 		Url: url,
