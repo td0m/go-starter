@@ -7,5 +7,5 @@ require (
 	github.com/gorilla/mux v1.7.4
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.5.2
-	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79
+	golang.org/x/crypto v0.1.0
 )
